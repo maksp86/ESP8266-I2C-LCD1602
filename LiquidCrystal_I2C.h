@@ -1,8 +1,9 @@
-#ifndef FDB_LIQUID_CRYSTAL_I2C_H
-#define FDB_LIQUID_CRYSTAL_I2C_H
+#ifndef LIQUID_CRYSTAL_I2C_H
+#define LIQUID_CRYSTAL_I2C_H
 
 #include <inttypes.h>
 #include <Print.h>
+#include <Wire.h>
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -74,39 +75,44 @@ public:
 	 * Set the LCD display in the correct begin state, must be called before anything else is done.
 	 */
 	void begin(uint8_t sda, uint8_t scl);
-	
-	 /**
-	  * Remove all the characters currently shown. Next print/write operation will start
-	  * from the first position on LCD display.
-	  */
+
+	/**
+	 * Set the LCD display in the correct begin state, must be called before anything else is done and after wire.begin.
+	 */
+	void begin(TwoWire* wire);
+
+	/**
+	 * Remove all the characters currently shown. Next print/write operation will start
+	 * from the first position on LCD display.
+	 */
 	void clear();
-	  
+
 	/**
 	 * Next print/write operation will will start from the first position on the LCD display.
 	 */
 	void home();
 
-	 /**
-	  * Do not show any characters on the LCD display. Backlight state will remain unchanged.
-	  * Also all characters written on the display will return, when the display in enabled again.
-	  */
+	/**
+	 * Do not show any characters on the LCD display. Backlight state will remain unchanged.
+	 * Also all characters written on the display will return, when the display in enabled again.
+	 */
 	void noDisplay();
-	  
+
 	/**
 	 * Show the characters on the LCD display, this is the normal behaviour. This method should
 	 * only be used after noDisplay() has been used.
-	 */ 
+	 */
 	void display();
 
 	/**
 	 * Do not blink the cursor indicator.
 	 */
 	void noBlink();
-	 
+
 	/**
 	 * Start blinking the cursor indicator.
-	 */ 
-	void blink();	 
+	 */
+	void blink();
 
 	/**
 	 * Do not show a cursor indicator.
@@ -114,9 +120,9 @@ public:
 	void noCursor();
 
 	/**
- 	 * Show a cursor indicator, cursor can blink on not blink. Use the
+	 * Show a cursor indicator, cursor can blink on not blink. Use the
 	 * methods blink() and noBlink() for changing cursor blink.
-	 */ 
+	 */
 	void cursor();
 
 	void scrollDisplayLeft();
@@ -130,9 +136,9 @@ public:
 	void noBacklight();
 	void backlight();
 	void autoscroll();
-	void noAutoscroll(); 
+	void noAutoscroll();
 	void createChar(uint8_t, uint8_t[]);
-	void setCursor(uint8_t, uint8_t); 
+	void setCursor(uint8_t, uint8_t);
 	virtual size_t write(uint8_t);
 	void command(uint8_t);
 
@@ -141,12 +147,14 @@ public:
 	inline void cursor_on() { cursor(); }
 	inline void cursor_off() { noCursor(); }
 
-// Compatibility API function aliases
+	// Compatibility API function aliases
 	void setBacklight(uint8_t new_val);				// alias for backlight() and nobacklight()
-	void load_custom_character(uint8_t char_num, uint8_t *rows);	// alias for createChar()
+	void load_custom_character(uint8_t char_num, uint8_t* rows);	// alias for createChar()
 	void printstr(const char[]);
-	 
+
 private:
+	TwoWire* _wire;
+	void _begin();
 	void send(uint8_t, uint8_t);
 	void write4bits(uint8_t);
 	void expanderWrite(uint8_t);
@@ -161,4 +169,4 @@ private:
 	uint8_t _backlightval;
 };
 
-#endif // FDB_LIQUID_CRYSTAL_I2C_H
+#endif // LIQUID_CRYSTAL_I2C_H
